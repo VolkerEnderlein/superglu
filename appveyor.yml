@@ -90,14 +90,15 @@ install:
       cd %APPVEYOR_BUILD_FOLDER%
       git submodule update --init --recursive
 
+# Assumes that you use the vx.y.z tagging scheme (e.g. v1.3.0)
 before_build:
   - cmd: |
-      if "%APPVEYOR_REPO_TAG%" == "true" ( set CI_REPO_TAG_NAME=%APPVEYOR_REPO_TAG_NAME% ) else set CI_REPO_TAG_NAME=latest
+      if "%APPVEYOR_REPO_TAG%" == "true" ( set CI_REPO_TAG_NAME=%APPVEYOR_REPO_TAG_NAME:~1% ) else set CI_REPO_TAG_NAME=latest
       set BUILD_SOURCE_ARCHIVE=%APPVEYOR_PROJECT_NAME%-%CI_REPO_TAG_NAME%-src.zip
       7z a -tzip %BUILD_SOURCE_ARCHIVE% %APPVEYOR_BUILD_FOLDER%
       cmake -H. -Bbuild -G "%CMAKE_GENERATOR%" -A %CMAKE_ARCHITECTURE% -DCMAKE_INSTALL_PREFIX=%APPVEYOR_BUILD_FOLDER%\Coin3D
   - sh: |
-      if [ "$APPVEYOR_REPO_TAG" == "true" ]; then export CI_REPO_TAG_NAME=$APPVEYOR_REPO_TAG_NAME; else export CI_REPO_TAG_NAME=latest; fi
+      if [ "$APPVEYOR_REPO_TAG" == "true" ]; then export CI_REPO_TAG_NAME=${APPVEYOR_REPO_TAG_NAME:1}; else export CI_REPO_TAG_NAME=latest; fi
       BUILD_SOURCE_ARCHIVE=$APPVEYOR_PROJECT_NAME-$CI_REPO_TAG_NAME-src.tar.gz
       tar -czvf $BUILD_SOURCE_ARCHIVE $APPVEYOR_BUILD_FOLDER/*
       export CFLAGS=$CMAKE_ARCH_FLAGS
@@ -118,13 +119,13 @@ build_script:
 after_build:
   - cmd: |
       cd %APPVEYOR_BUILD_FOLDER%
-      if "%APPVEYOR_REPO_TAG%" == "true" ( set CI_REPO_TAG_NAME=%APPVEYOR_REPO_TAG_NAME% ) else set CI_REPO_TAG_NAME=latest
+      if "%APPVEYOR_REPO_TAG%" == "true" ( set CI_REPO_TAG_NAME=%APPVEYOR_REPO_TAG_NAME:~1% ) else set CI_REPO_TAG_NAME=latest
       set BUILD_ARCHIVE=%APPVEYOR_PROJECT_NAME%-%CI_REPO_TAG_NAME%-%COMPILER_ID%-%CMAKE_PLATFORM%.zip
       7z a -tzip %BUILD_ARCHIVE% Coin3D
       appveyor DownloadFile https://ci.appveyor.com/api/buildjobs/%APPVEYOR_JOB_ID%/log -FileName %APPVEYOR_PROJECT_NAME%-%CI_REPO_TAG_NAME%-%COMPILER_ID%-%CMAKE_PLATFORM%.log
   - sh: |
       cd $APPVEYOR_BUILD_FOLDER
-      if [ "$APPVEYOR_REPO_TAG" == "true" ]; then export CI_REPO_TAG_NAME=$APPVEYOR_REPO_TAG_NAME; else export CI_REPO_TAG_NAME=latest; fi
+      if [ "$APPVEYOR_REPO_TAG" == "true" ]; then export CI_REPO_TAG_NAME=${APPVEYOR_REPO_TAG_NAME:1}; else export CI_REPO_TAG_NAME=latest; fi
       BUILD_ARCHIVE=$APPVEYOR_PROJECT_NAME-$CI_REPO_TAG_NAME-$COMPILER_ID-$CMAKE_PLATFORM.tar.gz
       tar -czvf $BUILD_ARCHIVE Coin3D/*
       appveyor DownloadFile https://ci.appveyor.com/api/buildjobs/$APPVEYOR_JOB_ID/log -FileName $APPVEYOR_PROJECT_NAME-$CI_REPO_TAG_NAME-$COMPILER_ID-$CMAKE_PLATFORM.log
