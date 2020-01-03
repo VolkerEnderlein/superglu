@@ -94,9 +94,9 @@ install:
 # Assumes that you use the vx.y.z tagging scheme (e.g. v1.3.0)
 before_build:
   - cmd: |
-      if defined APPVEYOR_REPO_TAG_NAME ( set CI_REPO_TAG_NAME=%APPVEYOR_REPO_TAG_NAME:~1% ) else ( set CI_REPO_TAG_NAME=latest )
+      set CI_REPO_TAG_NAME=latest
+      if defined APPVEYOR_REPO_TAG_NAME set CI_REPO_TAG_NAME=%APPVEYOR_REPO_TAG_NAME:~1%
       set BUILD_SOURCE_ARCHIVE=%APPVEYOR_PROJECT_NAME%-%CI_REPO_TAG_NAME%-src.zip
-      echo Project name %APPVEYOR_PROJECT_NAME% CI repo tag name %CI_REPO_TAG_NAME% Build source archive %BUILD_SOURCE_ARCHIVE%
       7z a -tzip %BUILD_SOURCE_ARCHIVE% %APPVEYOR_BUILD_FOLDER%
       cmake -H. -Bbuild -G "%CMAKE_GENERATOR%" -A %CMAKE_ARCHITECTURE% -DCMAKE_INSTALL_PREFIX=%APPVEYOR_BUILD_FOLDER%\Coin3D
   - sh: |
@@ -121,7 +121,8 @@ build_script:
 after_build:
   - cmd: |
       cd %APPVEYOR_BUILD_FOLDER%
-      if defined APPVEYOR_REPO_TAG_NAME ( set CI_REPO_TAG_NAME=%APPVEYOR_REPO_TAG_NAME:~1% ) else ( set CI_REPO_TAG_NAME=latest )
+      set CI_REPO_TAG_NAME=latest
+      if defined APPVEYOR_REPO_TAG_NAME set CI_REPO_TAG_NAME=%APPVEYOR_REPO_TAG_NAME:~1%
       set BUILD_ARCHIVE=%APPVEYOR_PROJECT_NAME%-%CI_REPO_TAG_NAME%-%COMPILER_ID%-%CMAKE_PLATFORM%.zip
       7z a -tzip %BUILD_ARCHIVE% Coin3D
       appveyor DownloadFile https://ci.appveyor.com/api/buildjobs/%APPVEYOR_JOB_ID%/log -FileName %APPVEYOR_PROJECT_NAME%-%CI_REPO_TAG_NAME%-%COMPILER_ID%-%CMAKE_PLATFORM%.log
