@@ -96,6 +96,7 @@ before_build:
   - cmd: |
       if defined APPVEYOR_REPO_TAG_NAME ( set CI_REPO_TAG_NAME=%APPVEYOR_REPO_TAG_NAME:~1% ) else ( set CI_REPO_TAG_NAME=latest )
       set BUILD_SOURCE_ARCHIVE=%APPVEYOR_PROJECT_NAME%-%CI_REPO_TAG_NAME%-src.zip
+      echo Project name %APPVEYOR_PROJECT_NAME% CI repo tag name %CI_REPO_TAG_NAME% Build source archive %BUILD_SOURCE_ARCHIVE%
       7z a -tzip %BUILD_SOURCE_ARCHIVE% %APPVEYOR_BUILD_FOLDER%
       cmake -H. -Bbuild -G "%CMAKE_GENERATOR%" -A %CMAKE_ARCHITECTURE% -DCMAKE_INSTALL_PREFIX=%APPVEYOR_BUILD_FOLDER%\Coin3D
   - sh: |
